@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 class ApartmentsService
   APARTMENTS_URL = 'https://raw.githubusercontent.com/kirillplatonov/apartments-feed-test/master/apartments.yml'
   AGENCIES_URL = 'https://raw.githubusercontent.com/kirillplatonov/apartments-feed-test/master/rental_agencies.yml'
-  AGENCY_FIELDS = %w[price rental_agency]
-  
+  AGENCY_FIELDS = %w[price rental_agency].freeze
+
   def self.load_feed
-    @apartments = YAML.load(HTTParty.get(APARTMENTS_URL).body)
-    @agencies = YAML.load(HTTParty.get(AGENCIES_URL).body)
+    @apartments = YAML.safe_load(HTTParty.get(APARTMENTS_URL).body)
+    @agencies = YAML.safe_load(HTTParty.get(AGENCIES_URL).body)
 
     address_to_agency = {}
 
@@ -14,12 +16,12 @@ class ApartmentsService
       address_to_agency[apartment.except(*AGENCY_FIELDS)] = prioritize(apartment.slice(*AGENCY_FIELDS), data)
     end
 
-    address_to_agency.map{|address, agency| address.merge(agency)}
+    address_to_agency.map { |address, agency| address.merge(agency) }
   end
 
   private
 
-  def self.prioritize new_offer, existing_offer
+  def self.prioritize(new_offer, existing_offer)
     return new_offer unless existing_offer
 
     new_offer_priority = @agencies[new_offer['rental_agency']].to_i

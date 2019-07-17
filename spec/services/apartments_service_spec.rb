@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ApartmentsService do
@@ -5,7 +7,7 @@ RSpec.describe ApartmentsService do
 
   describe '#load_feed' do
     subject { described_class.load_feed }
-    let(:expected) { YAML.load(file_fixture('result.yml').read) }
+    let(:expected) { YAML.safe_load(file_fixture('result.yml').read) }
 
     it 'should get apartments feed without duplicates' do
       is_expected.to eq(expected)
